@@ -106,7 +106,7 @@ def plot_violin_box_qq(df, cat_variable=None, n_cols_per_row=1):
     plt.tight_layout()
     plt.show()
 
-def plot_correlation_heatmap(df, figsize=(12, 12), cmap="cividis", method="pearson"):
+def plot_correlation_heatmap(df, figsize=(12, 12), cmap="cividis", method="pearson", fontsize=10):
     """
     Generates and displays a heatmap of the correlation matrix for numeric columns in a DataFrame.
     
@@ -114,9 +114,9 @@ def plot_correlation_heatmap(df, figsize=(12, 12), cmap="cividis", method="pears
         df (pd.DataFrame): The DataFrame containing the data.
         figsize (tuple): The size of the figure. Default is (12, 12).
         cmap (str): The color map for the heatmap. Default is "cividis".
-        title (str): The title for the heatmap. Default is "Correlation Heatmap".
         method (str): The correlation method to use. Options are 'pearson', 'spearman', 'kendall'.
                       Default is 'pearson'.
+        fontsize (int): The font size for the correlation values displayed on the heatmap. Default is 10.
     
     Returns:
         None
@@ -127,8 +127,8 @@ def plot_correlation_heatmap(df, figsize=(12, 12), cmap="cividis", method="pears
     # Set up the matplotlib figure
     fig, ax = plt.subplots(figsize=figsize)
     
-    # Draw the heatmap with annotations
-    sns.heatmap(cor_results, annot=True, fmt=".2f", ax=ax, cmap=cmap)
+    # Draw the heatmap with annotations, including the fontsize parameter for the annotations
+    sns.heatmap(cor_results, annot=True, fmt=".2f", ax=ax, cmap=cmap, annot_kws={"size": fontsize})
     
     # Set the title
     ax.set_title(f'Correlation Heatmap: {method}', fontsize=16)
@@ -137,7 +137,8 @@ def plot_correlation_heatmap(df, figsize=(12, 12), cmap="cividis", method="pears
     plt.show()
 
 # Example usage:
-# plot_correlation_heatmap(df, figsize=(10, 10), cmap="coolwarm", title="Spearman Correlation Heatmap", method="spearman")
+# plot_correlation_heatmap(df, figsize=(10, 10), cmap="coolwarm", method="spearman", fontsize=12)
+
 
 def plot_boxplot_by_focal_variable(df, focal_column, focal_variable=None, n_cols=3):
     """

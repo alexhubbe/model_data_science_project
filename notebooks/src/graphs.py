@@ -4,29 +4,28 @@ import seaborn as sns
 from matplotlib.ticker import EngFormatter
 from sklearn.metrics import PredictionErrorDisplay
 
-from .models import RANDOM_STATE
+from .config import (
+    PALETTE,
+    RANDOM_STATE,
+    SCATTER_ALPHA,
+)
 
-sns.set_theme(palette="bright")
 
-PALETTE = "coolwarm"
-SCATTER_ALPHA = 0.2
-
-
-def plot_coeficientes(df_coefs, tituto="Coeficientes"):
+def plot_coefficients(df_coefs, title="Coefficients"):
     df_coefs.plot.barh()
-    plt.title(tituto)
+    plt.title(title)
     plt.axvline(x=0, color=".5")
-    plt.xlabel("Coeficientes")
+    plt.xlabel("Coefficients")
     plt.gca().get_legend().remove()
     plt.show()
 
 
-def plot_residuos(y_true, y_pred):
-    residuos = y_true - y_pred
+def plot_residuals(y_true, y_pred):
+    residuals = y_true - y_pred
 
     fig, axs = plt.subplots(1, 3, figsize=(12, 6))
 
-    sns.histplot(residuos, kde=True, ax=axs[0])
+    sns.histplot(residuals, kde=True, ax=axs[0])
 
     error_display_01 = PredictionErrorDisplay.from_predictions(
         y_true=y_true, y_pred=y_pred, kind="residual_vs_predicted", ax=axs[1]
@@ -41,7 +40,7 @@ def plot_residuos(y_true, y_pred):
     plt.show()
 
 
-def plot_residuos_estimador(estimator, X, y, eng_formatter=False, fracao_amostra=0.25):
+def plot_residuals_estimator(estimator, X, y, eng_formatter=False, sample_fraction=0.25):
 
     fig, axs = plt.subplots(1, 3, figsize=(12, 6))
 
@@ -53,7 +52,7 @@ def plot_residuos_estimador(estimator, X, y, eng_formatter=False, fracao_amostra
         ax=axs[1],
         random_state=RANDOM_STATE,
         scatter_kwargs={"alpha": SCATTER_ALPHA},
-        subsample=fracao_amostra,
+        subsample=sample_fraction,
     )
 
     error_display_02 = PredictionErrorDisplay.from_estimator(
@@ -64,12 +63,12 @@ def plot_residuos_estimador(estimator, X, y, eng_formatter=False, fracao_amostra
         ax=axs[2],
         random_state=RANDOM_STATE,
         scatter_kwargs={"alpha": SCATTER_ALPHA},
-        subsample=fracao_amostra,
+        subsample=sample_fraction,
     )
 
-    residuos = error_display_01.y_true - error_display_01.y_pred
+    residuals = error_display_01.y_true - error_display_01.y_pred
 
-    sns.histplot(residuos, kde=True, ax=axs[0])
+    sns.histplot(residuals, kde=True, ax=axs[0])
 
     if eng_formatter:
         for ax in axs:
@@ -81,51 +80,42 @@ def plot_residuos_estimador(estimator, X, y, eng_formatter=False, fracao_amostra
     plt.show()
 
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-def plot_comparar_metricas_modelos(df_resultados):
+def plot_compare_model_metrics(df_results):
     fig, axs = plt.subplots(2, 2, figsize=(8, 8), sharex=True)
 
-    comparar_metricas = [
+    metrics_to_compare = [
         "time_seconds",
         "test_r2",
         "test_neg_mean_absolute_error",
         "test_neg_root_mean_squared_error",
     ]
 
-    nomes_metricas = [
-        "Tempo (s)",
+    metric_names = [
+        "Time (s)",
         "R²",
         "MAE",
         "RMSE",
     ]
 
-    for ax, metrica, nome in zip(axs.flatten(), comparar_metricas, nomes_metricas):
+    for ax, metric, name in zip(axs.flatten(), metrics_to_compare, metric_names):
         sns.stripplot(
             x="model",
-            y=metrica,
-            data=df_resultados,
+            y=metric,
+            data=df_results,
             ax=ax,
             jitter=True,  # Adjust to spread points to avoid overlap
             dodge=True,   # Separates points by 'model'
             color='black',  # Color of the points
             alpha=0.7,     # Transparency of points
         )
-        ax.set_title(nome)
-        ax.set_ylabel(nome)
+        ax.set_title(name)
+        ax.set_ylabel(name)
         ax.tick_params(axis="x", rotation=90)
 
     plt.tight_layout()
 
     plt.show()
 
-
-
-
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 def plot_grid_search_results(grid_search, top_n=10):
     """
@@ -139,15 +129,15 @@ def plot_grid_search_results(grid_search, top_n=10):
         Processed DataFrame with selected columns.
     """
     # Step 1: Convert grid search results to DataFrame
-    df_resultados = pd.DataFrame(grid_search.cv_results_)
+    df_results = pd.DataFrame(grid_search.cv_results_)
     
     # Step 2: Extract 'preprocessor' and 'transformer' information
-    df_resultados['preprocessor'] = df_resultados['params'].apply(
+    df_results['preprocessor'] = df_results['params'].apply(
         lambda params: ', '.join(
             name for name, _, _ in params['regressor__preprocessor'].transformers
         )
     )
-    df_resultados['transformer'] = df_resultados['params'].apply(
+    df_results['transformer'] = df_results['params'].apply(
         lambda params: params['transformer']
     )
     
@@ -160,19 +150,19 @@ def plot_grid_search_results(grid_search, top_n=10):
         'rank_test_neg_mean_absolute_error', 'mean_test_neg_root_mean_squared_error',
         'std_test_neg_root_mean_squared_error'
     ]
-    df_resultados = df_resultados.drop(columns=cols_to_drop)
+    df_results = df_results.drop(columns=cols_to_drop)
     
     # Step 4: Rename columns for clarity
-    df_resultados = df_resultados.rename(columns={'rank_test_neg_root_mean_squared_error': 'rank_rmse'})
+    df_results = df_results.rename(columns={'rank_test_neg_root_mean_squared_error': 'rank_rmse'})
     
     # Step 5: Standardize column names
-    df_resultados.columns = df_resultados.columns.str.replace(r'^.*?_test_', 'test_', regex=True)
+    df_results.columns = df_results.columns.str.replace(r'^.*?_test_', 'test_', regex=True)
     
     # Step 6: Sort and select top N rows
-    df_resultados = df_resultados.sort_values(by='rank_rmse').iloc[:top_n]
+    df_results = df_results.sort_values(by='rank_rmse').iloc[:top_n]
     
     # Step 7: Transform to long format for plotting
-    df_long = df_resultados.T.reset_index().melt(id_vars='index', var_name='column', value_name='value')
+    df_long = df_results.T.reset_index().melt(id_vars='index', var_name='column', value_name='value')
     
     # Step 8: Generate plots
     unique_indices = df_long['index'].unique()[:-3]
@@ -190,8 +180,8 @@ def plot_grid_search_results(grid_search, top_n=10):
         plt.show()
     
     # Step 9: Return the processed DataFrame
-    return df_resultados.loc[:, ['rank_rmse', 'preprocessor', 'transformer']].T
+    return df_results.loc[:, ['rank_rmse', 'preprocessor', 'transformer']].T
 
-# #use the following strukture to have the Transpose effect
+# # Use the following structure to have the Transpose effect
 # plot_show = plot_grid_search_results(grid_search)
 # plot_show.T

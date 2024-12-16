@@ -1,16 +1,20 @@
 from pathlib import Path
 
+PALETTE = 'cividis'
+RANDOM_STATE = 42
+SCATTER_ALPHA = 0.2
+
 
 PROJECT_FOLDER = Path(__file__).resolve().parents[2]
 
-DATA_FOLDER = PROJECT_FOLDER / "dados"
+DATA_FOLDER = PROJECT_FOLDER / "data"
 
-# coloque abaixo o caminho para os arquivos de dados de seu projeto
-ORIGINAL_DATA = DATA_FOLDER / "exemplo.csv"
+# put the path for the project data files below
+TRAIN_DATA = DATA_FOLDER / "train.csv"
+TEST_DATA = DATA_FOLDER / "test.csv"
+# put the path for the project model files below
+MODELS_FOLDER = PROJECT_FOLDER / "models"
 
-# coloque abaixo o caminho para os arquivos de modelos de seu projeto
-MODELS_FOLDER = PROJECT_FOLDER / "modelos"
-
-# coloque abaixo outros caminhos que você julgar necessário
-REPORT_FOLDER = PROJECT_FOLDER / "relatorios"
-IMAGES_FOLDER = REPORT_FOLDER / "imagens"
+# put any other necessary paths below
+REPORT_FOLDER = PROJECT_FOLDER / "reports"
+IMAGES_FOLDER = REPORT_FOLDER / "images"
